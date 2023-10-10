@@ -13,6 +13,8 @@
 package games.negative.sentinel.util;
 
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 public enum Logger {
     // Make this go by plugin.yml name
@@ -35,6 +37,6 @@ public enum Logger {
     }
 
     public void sendLog(String message) {
-        System.out.println(display + message);
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', display + message));
     }
 }
