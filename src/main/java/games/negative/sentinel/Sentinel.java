@@ -3,7 +3,8 @@
  *
  * All rights reserved.
  *
- * This software is a "remix" of the original and is solely intended as a means to reduce boilerplate code. It is not intended to be a substitute for the original software.
+ * This software is a "remix" of the original and is solely intended as a means to reduce boilerplate code.
+ * It is not intended to be a substitute for the original software.
  *
  * The copyright owners, Demeng and Demeng Development, retain all rights to this software.
  *
@@ -20,26 +21,37 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
+/**
+ * Provides methods for authenticating with the Sentinel API.
+ */
 public class Sentinel {
+
     /**
-     * @param url           - The API url
-     * @param auth          - The API key
-     * @param key           - The licence key
-     * @param product       - The product identifier
-     * @param platform      - The purchase platform
-     * @param platformValue - The purchase platform user identity
-     * @return - Status of authentication
+     * Authenticates with the Sentinel API using the provided parameters.
+     *
+     * @param url           The API URL.
+     * @param auth          The API key.
+     * @param key           The license key (nullable).
+     * @param product       The product identifier.
+     * @param platform      The purchase platform.
+     * @param platformValue The purchase platform user identity.
+     * @return True if authentication is successful, false otherwise.
      */
-    public boolean authenticate(String url, String auth, @Nullable String key, String product, String platform, String platformValue) {
-        final SentinelClient sentinel = new SentinelClient(
-                url,
-                auth);
+    public boolean authenticate(String url, String auth, @Nullable String key, String product,
+                                String platform, String platformValue) {
+
+        // Create a SentinelClient instance with the provided API URL and key.
+        final SentinelClient sentinel = new SentinelClient(url, auth);
 
         try {
-            sentinel.getLicenseController().auth(key, product, platform,
-                    platformValue, SentinelClient.getCurrentHwid(), SentinelClient.getCurrentIp());
+            // Attempt license authentication using the provided parameters.
+            sentinel.getLicenseController().auth(key, product, platform, platformValue,
+                    SentinelClient.getCurrentHwid(), SentinelClient.getCurrentIp());
+
+            // Authentication succeeded; log a success message.
             Logger.WARNING.sendLog("&aThis license is &a&lvalid&d.");
             return true;
+
         } catch (InvalidLicenseException e) {
             handleLicenseError("invalid");
         } catch (ExpiredLicenseException e) {
@@ -60,11 +72,16 @@ public class Sentinel {
             handleLicenseError("dodgy. We don't know what happened, join https://discord.gg/uWQRGB662c!");
         }
 
+        // Authentication failed.
         return false;
     }
 
+    /**
+     * Handles license-related errors and logs an appropriate message.
+     *
+     * @param errorMessage The error message describing the license issue.
+     */
     private void handleLicenseError(String errorMessage) {
         Logger.WARNING.sendLog("&cThis license is " + errorMessage + ".");
     }
 }
-
