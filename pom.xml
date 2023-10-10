@@ -6,7 +6,7 @@
 
     <!-- Credentials -->
     <groupId>games.negative.sentinel</groupId>
-    <artifactId>sentinel-negativegames</artifactId>
+    <artifactId>sentinel</artifactId>
     <version>1.0</version>
 
     <!-- Project Properties    -->
@@ -19,7 +19,7 @@
     <!-- Build Script    -->
     <build>
         <!-- Final JAR Name -->
-        <finalName>sentinel-negativegames</finalName>
+        <finalName>Sentinel</finalName>
 
         <!-- Plugins -->
         <plugins>
