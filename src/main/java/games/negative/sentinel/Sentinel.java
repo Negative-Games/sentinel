@@ -101,6 +101,15 @@ public class Sentinel {
     }
 
     /**
+     * Returns the result of the license authentication.
+     * @return The result of the license authentication.
+     */
+    @NotNull
+    public AuthenticationResult result() {
+        return result;
+    }
+
+    /**
      * Handles the result of the license authentication.
      * @param result The result of the license authentication.
      */
