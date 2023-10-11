@@ -14,74 +14,97 @@
 package games.negative.sentinel;
 
 import dev.demeng.sentinel.wrapper.SentinelClient;
+import dev.demeng.sentinel.wrapper.controller.LicenseController;
 import dev.demeng.sentinel.wrapper.exception.*;
 import dev.demeng.sentinel.wrapper.exception.unchecked.UnexpectedResponseException;
-import games.negative.sentinel.util.Logger;
+import games.negative.sentinel.model.AuthenticationResult;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Provides methods for authenticating with the Sentinel API.
  */
 public class Sentinel {
 
+    private final AuthenticationResult result;
+    private final Logger logger;
+
     /**
-     * Authenticates with the Sentinel API using the provided parameters.
-     *
-     * @param url           The API URL.
-     * @param auth          The API key.
-     * @param key           The license key (nullable).
-     * @param product       The product identifier.
-     * @param platform      The purchase platform.
-     * @param platformValue The purchase platform user identity.
-     * @return True if authentication is successful, false otherwise.
+     * Constructs a new Sentinel instance.
+     * @param plugin The plugin instance.
+     * @param url The API URL.
+     * @param auth The API authentication key.
+     * @param key The license key.
+     * @param product The product name.
+     * @param platform The platform name.
+     * @param platformValue The platform value.
      */
-    public boolean authenticate(String url, String auth, @Nullable String key, String product,
-                                String platform, String platformValue) {
+    public Sentinel(@NotNull JavaPlugin plugin, @NotNull String url, @NotNull String auth, @Nullable String key, @NotNull String product, @NotNull String platform, @NotNull String platformValue) {
+        this.logger = plugin.getLogger();
+
+        AuthenticationResult output;
 
         // Create a SentinelClient instance with the provided API URL and key.
         final SentinelClient sentinel = new SentinelClient(url, auth);
 
         try {
             // Attempt license authentication using the provided parameters.
-            sentinel.getLicenseController().auth(key, product, platform, platformValue,
+            LicenseController controller = sentinel.getLicenseController();
+            controller.auth(key, product, platform, platformValue,
                     SentinelClient.getCurrentHwid(), SentinelClient.getCurrentIp());
 
-            // Authentication succeeded; log a success message.
-            Logger.WARNING.sendLog("&aThis license is &a&lvalid&d.");
-            return true;
-
-        } catch (InvalidLicenseException e) {
-            handleLicenseError("invalid");
-        } catch (ExpiredLicenseException e) {
-            handleLicenseError("expired");
-        } catch (BlacklistedLicenseException e) {
-            handleLicenseError("blacklisted");
-        } catch (ExcessiveServersException e) {
-            handleLicenseError("used by too many servers. (Max: " + e.getMaxServers() + ")");
-        } catch (ExcessiveIpsException e) {
-            handleLicenseError("used by too many IPs. (Max: " + e.getMaxIps() + ")");
-        } catch (InvalidProductException e) {
-            handleLicenseError("linked to a different product");
-        } catch (InvalidPlatformException e) {
-            handleLicenseError("not linked to your download id");
-        } catch (ConnectionMismatchException e) {
-            handleLicenseError("not linked to your connection");
-        } catch (UnexpectedResponseException | IOException e) {
-            handleLicenseError("dodgy. We don't know what happened, join https://discord.gg/uWQRGB662c!");
+            // Authentication successful!
+            output = AuthenticationResult.SUCCESS;
+        } catch (InvalidLicenseException exception) {
+            // The license is invalid.
+            output = AuthenticationResult.INVALID;
+        } catch (ExpiredLicenseException exception) {
+            // The license has expired.
+            output = AuthenticationResult.EXPIRED;
+        } catch (BlacklistedLicenseException exception) {
+            // The license has been blacklisted.
+            output = AuthenticationResult.BLACKLISTED;
+        } catch (ExcessiveServersException exception) {
+            // The license has been used by too many servers.
+            output = AuthenticationResult.EXCESSIVE_SERVERS;
+        } catch (ExcessiveIpsException exception) {
+            // The license has been used by too many IPs.
+            output = AuthenticationResult.EXCESSIVE_IPS;
+        } catch (InvalidProductException exception) {
+            // The license is linked to a different product.
+            output = AuthenticationResult.INVALID_PRODUCT;
+        } catch (InvalidPlatformException exception) {
+            // The download ID is not the same as the current download ID
+            output = AuthenticationResult.UNKNOWN_DOWNLOAD_ID;
+        } catch (ConnectionMismatchException exception) {
+            // The connection of the license is not the same as the current connection.
+            output = AuthenticationResult.UNKNOWN_CONNECTION;
+        } catch (UnexpectedResponseException | IOException exception) {
+            // An unexpected error occurred.
+            output = AuthenticationResult.UNEXPECTED;
         }
 
-        // Authentication failed.
-        return false;
+        this.result = output;
     }
 
     /**
-     * Handles license-related errors and logs an appropriate message.
-     *
-     * @param errorMessage The error message describing the license issue.
+     * Authenticates with the Sentinel API.
+     * @return Whether the authentication succeeded.
      */
-    private void handleLicenseError(String errorMessage) {
-        Logger.WARNING.sendLog("&cThis license is " + errorMessage + ".");
+    public boolean authenticate() {
+        handleLicenseResult(result);
+        return result == AuthenticationResult.SUCCESS;
+    }
+
+    /**
+     * Handles the result of the license authentication.
+     * @param result The result of the license authentication.
+     */
+    private void handleLicenseResult(@NotNull AuthenticationResult result) {
+        logger.severe(result.message());
     }
 }

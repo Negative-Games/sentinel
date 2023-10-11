@@ -7,7 +7,7 @@
     <!-- Credentials -->
     <groupId>games.negative.sentinel</groupId>
     <artifactId>sentinel</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <!-- Project Properties    -->
     <properties>
@@ -73,10 +73,15 @@
 
     <!-- Repositories -->
     <repositories>
+        <!-- SpigotMC Repository -->
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
 
+        <!-- Demeng's Repository -->
         <repository>
             <id>demeng-repo</id>
-            <name>Demeng's Repository</name>
             <url>https://repo.demeng.dev/releases</url>
         </repository>
 
@@ -84,25 +89,33 @@
 
     <!-- Dependencies -->
     <dependencies>
+
+        <!-- Sentinel Wrapper -->
         <dependency>
             <groupId>dev.demeng</groupId>
             <artifactId>sentinel-java-wrapper</artifactId>
             <version>1.2.0</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
+
+
+        <!-- Annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
+            <scope>provided</scope>
         </dependency>
 
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.26</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- Spigot API -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
